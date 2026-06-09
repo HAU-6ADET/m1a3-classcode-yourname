@@ -15,13 +15,18 @@ Future<String> _run(List<String> inputs) async {
   return out;
 }
 
-/// One test = the points for this activity. It passes only if your
-/// student.json is filled in AND the program computes the years correctly.
+/// Each test below is worth one point. student.json must be filled in (6
+/// fields) and the program must compute 100 - age for two different ages
+/// (so the answer can't be hardcoded).
 void main() {
-  test('Activity 3 complete: years-until-100 + student.json filled', () async {
-    // 1. student.json must be filled in
-    final info = jsonDecode(File('student.json').readAsStringSync())
-        as Map<String, dynamic>;
+  group('Student info (student.json)', () {
+    late Map<String, dynamic> info;
+
+    setUpAll(() {
+      info = jsonDecode(File('student.json').readAsStringSync())
+          as Map<String, dynamic>;
+    });
+
     for (final field in [
       'classCode',
       'fullName',
@@ -30,13 +35,20 @@ void main() {
       'personalEmail',
       'githubAccount',
     ]) {
-      expect(info[field], isNotEmpty, reason: 'Set "$field" in student.json');
+      test('$field is filled in', () {
+        expect(info[field], isNotEmpty, reason: 'Set "$field" in student.json');
+      });
     }
+  });
 
-    // 2. the program computes 100 - age (two cases, so it can't be hardcoded)
-    expect(await _run(['Buboy', '25']), contains('75'),
-        reason: 'age 25 should give 75 years remaining');
-    expect(await _run(['Ana', '40']), contains('60'),
-        reason: 'age 40 should give 60 years remaining');
+  group('Years until 100', () {
+    test('age 25 gives 75 years remaining', () async {
+      expect(await _run(['Buboy', '25']), contains('75'),
+          reason: 'age 25 should give 75 years remaining');
+    });
+    test('age 40 gives 60 years remaining', () async {
+      expect(await _run(['Ana', '40']), contains('60'),
+          reason: 'age 40 should give 60 years remaining');
+    });
   }, timeout: const Timeout(Duration(seconds: 60)));
 }
